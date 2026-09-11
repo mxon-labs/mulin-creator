@@ -1,0 +1,11 @@
+{
+  "name": "mulin-creator",
+  "displayName": "MuLiN Creator",
+  "version": "0.1.0",
+  "description": "Operates a running MuLiN Creator — opens projects, reads and edits POUs and ladder, manages variables and tasks, builds, and downloads to the device. Creator must already be running; the bridge finds the window to attach to via its lock file.",
+  "author": {
+    "name": "MXOn Corporation"
+  },
+  "license": "Proprietary",
+  "keywords": ["plc", "ladder", "iec-61131", "mulin", "creator"]
+}

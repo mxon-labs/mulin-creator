@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "mulin-creator": {
+      "type": "stdio",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${CLAUDE_PLUGIN_ROOT}/scripts/Start-McpBridge.ps1"
+      ],
+      "timeout": 1800000
+    }
+  }
+}

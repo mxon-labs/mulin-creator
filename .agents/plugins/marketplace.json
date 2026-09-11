@@ -1,0 +1,20 @@
+{
+  "name": "mxon",
+  "interface": {
+    "displayName": "MXOn Corporation"
+  },
+  "plugins": [
+    {
+      "name": "mulin-creator",
+      "source": {
+        "source": "url",
+        "url": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Engineering"
+    }
+  ]
+}

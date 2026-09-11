@@ -1,0 +1,39 @@
+{
+  "name": "mulin-creator",
+  "version": "0.1.0",
+  "description": "Operates a running MuLiN Creator — opens projects, reads and edits POUs and ladder, manages variables and tasks, builds, and downloads to the device. Creator must already be running; the bridge finds the window to attach to via its lock file.",
+  "author": {
+    "name": "MXOn Corporation"
+  },
+  "license": "Proprietary",
+  "keywords": ["plc", "ladder", "iec-61131", "mulin", "creator"],
+  "skills": "./skills/",
+  "mcpServers": {
+    "mulin-creator": {
+      "command": "powershell.exe",
+      "cwd": ".",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "./scripts/Start-McpBridge.ps1"
+      ],
+      "startup_timeout_sec": 1800,
+      "tool_timeout_sec": 1800
+    }
+  },
+  "interface": {
+    "displayName": "MuLiN Creator",
+    "shortDescription": "Operate a running MuLiN Creator from your AI client",
+    "longDescription": "Opens projects, reads and edits POUs and ladder, manages variables and tasks, builds, and downloads to the device. Creator must already be running; the bridge finds the window to attach to via its lock file. Windows only.",
+    "developerName": "MXOn Corporation",
+    "category": "Engineering",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "defaultPrompt": [
+      "Open my project in MuLiN Creator and list its POUs.",
+      "Show the ladder in this POU and explain what it does.",
+      "Build the project and download it to the device."
+    ]
+  }
+}

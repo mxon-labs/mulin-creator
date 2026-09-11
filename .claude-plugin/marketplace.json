@@ -1,0 +1,16 @@
+{
+  "name": "mxon",
+  "description": "Plugins from MXOn Corporation for AI clients.",
+  "owner": {
+    "name": "MXOn Corporation"
+  },
+  "plugins": [
+    {
+      "name": "mulin-creator",
+      "source": "./",
+      "description": "Operates a running MuLiN Creator — projects, POUs, ladder, variables, tasks, build, download.",
+      "version": "0.1.0",
+      "keywords": ["plc", "ladder", "iec-61131", "mulin", "creator"]
+    }
+  ]
+}
