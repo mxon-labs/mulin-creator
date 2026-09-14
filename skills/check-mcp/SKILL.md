@@ -1,6 +1,6 @@
 ---
 name: check-mcp
-description: MuLiN Creator 에 왜 붙지 못하는지 진단한다 — 잠금 파일·포트·응답·인스턴스 선택 (실행 중인 PLC 가 아니라 Creator 쪽 연결 진단) / Diagnoses why the session cannot attach to MuLiN Creator — lock file, port, response, instance selection (this checks the Creator-side connection, not a running PLC)
+description: Diagnoses why the session cannot attach to MuLiN Creator — lock file, port, response, instance selection (this checks the Creator-side connection, not a running PLC)
 allowed-tools: Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/scripts/Start-McpBridge.ps1" *)
 ---
 
