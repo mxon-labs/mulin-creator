@@ -53,7 +53,6 @@ Creator 를 띄우면 MCP 서버가 자동으로 켜진다. 포트는 29500 부�
 
 - **도구** — 프로젝트·POU·래더·변수·태스크·빌드·다운로드. 이름은
   `mcp__plugin_mulin-creator_mulin-creator__*` 로 읽힌다.
-- **`/mulin-creator:check-mcp`** — 안 붙을 때 이유를 짚는다.
 - **`/mulin-creator:engineering`** — 조작 절차. 래더가 그래프라는 것, 대화상자가 뜨면
   무엇을 하는지 등을 AI 가 알아서 참조한다.
 
@@ -98,22 +97,6 @@ claude plugin install mulin-creator@mxon
 claude plugin update mulin-creator@mxon --scope project
 ```
 
-### 순서 — Creator 를 먼저 켠다
-
-브리지는 Claude Code 가 **세션을 시작할 때** 띄운다. 그 순간 Creator 가 떠 있지 않으면
-서버가 실패 상태로 남고, 그 실패는 세션이 기억한다 — 뒤늦게 Creator 를 켜도 다음 도구
-호출이 알아서 다시 붙지는 않는다. 다시 붙이는 방법은 클라이언트에 따라 다르다.
-
-- **터미널의 `claude`** — `/mcp` 에서 `mulin-creator` 를 골라 Reconnect.
-- **`/mcp` 패널이 없는 클라이언트** (데스크톱 앱의 Code 탭 등) — Creator 를 켠 뒤
-  **세션을 새로 시작한다.** 그쪽에는 다시 붙일 손잡이가 없다.
-
-그래서 가장 확실한 순서는 **Creator 를 켜고 나서 Claude Code 를 띄우는 것**이다.
-
-**세션 도중에 Creator 를 껐다 켜는 것은 다른 얘기다 — 아무것도 안 해도 된다.** 브리지는
-그대로 살아 있고, 다음 도구 호출에서 잠금 파일을 다시 읽어 새로 뜬 창에 스스로 붙는다.
-포트가 바뀌어도 마찬가지다. "연결이 끊겼다" 는 표시가 남아 있어도 도구를 한 번 부르면 된다.
-
 ## Codex
 
 Codex 도 같은 저장소에서 받는다. Claude Code 와 같이 두 줄이다.
@@ -123,10 +106,7 @@ codex plugin marketplace add mxon-labs/mulin-creator
 codex plugin add mulin-creator@mxon
 ```
 
-도구와 스킬 둘이 함께 온다. `codex mcp list` 에 `mulin-creator` 가 enabled 로 보이면 된다.
-
-**Creator 를 먼저 띄우고 세션을 연다** — 브리지가 세션이 시작될 때 켜지는 것은 Claude Code
-쪽과 같다.
+도구와 스킬이 함께 온다. `codex mcp list` 에 `mulin-creator` 가 enabled 로 보이면 된다.
 
 ### 새 버전이 나왔을 때
 
@@ -160,35 +140,27 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "<저장소 경로>\scri
 
 ## Creator 창이 둘 이상일 때
 
-브리지는 **어느 창일지 추측하지 않는다.** 열린 프로젝트로도 갈리지 않으면 붙기를
-거절하고 후보를 알린다 — 보고 있지 않은 창의 래더가 바뀌는 것이 이 계열에서 가장
-비싼 사고이기 때문이다.
+도구 호출마다 그 시점에 Creator 창을 찾는다. 창이 여럿이면 프로젝트로 구별해 그
+프로젝트가 열린 창에서 동작한다 — 같은 프로젝트를 다시 여는 재시작이면 조용히 이어진다.
+어느 창인지 정할 수 없으면 AI 가 묻고, 답한 창으로 세션을 고정한다.
 
-조작할 창을 못 박으려면 그 창의 포트를 환경변수에 넣는다.
+직접 못 박고 싶으면 세션을 시작하기 전에 그 창의 포트를 환경변수에 넣는다.
 
 ```powershell
 $env:MULIN_MCP_PORT = 29501
 ```
 
-포트는 `mulin-creator:check-mcp` 스킬이나 잠금 파일 이름으로 알 수 있다.
-
-**Codex 에서는 열린 프로젝트로 갈리지 않는다** — 그쪽은 브리지가 플러그인 폴더에서
-돌아 견줄 프로젝트 폴더가 없다. 창이 둘 이상이면 늘 포트를 지정한다.
+포트는 `list_creator_instances`(AI 에게 물어보면 된다)나 잠금 파일 이름으로 알 수 있다.
 
 ## 붙어 있던 창이 세션 도중 사라지면
 
-브리지는 처음 붙은 Creator 창을 고정해 두고 세션 내내 그 프로세스에게만 말을 건다 —
-그 창이 닫혀도 **다른 창으로 조용히 갈아타지 않는다.** 재접속했을 때 다른 Creator 가
-응답하면, 골라 준 적 없는 곳에 그대로 적용하는 대신 도구 호출이
-`creator.instance_changed` 로 실패한다.
-
-이때 세션을 다시 켤 필요는 없다 — AI 가 오류에 실린 목록(또는 `list_creator_instances`)
-에서 원하는 창의 포트로 `use_creator_instance` 를 부르고 나서 다시 시도한다. 대화상자에
-갇혀 프로젝트가 아직 안 열린 창(예: 복구 프롬프트 뒤)을 찾아 붙는 것도 같은 경로다.
+같은 프로젝트를 다시 열면 그대로 이어진다 — 따로 할 일이 없다. 다른 프로젝트가 열린
+창만 남았으면 AI 가 어느 창을 쓸지 묻는다.
 
 ## 안 될 때
 
-Claude Code 에서는 `/mulin-creator:check-mcp` 가 대신 짚어 준다. 직접 보려면:
+도구가 하나도 안 보이면 브리지 프로세스 자체가 못 뜬 것이다 — 실행 정책과 보안
+소프트웨어를 확인하고 `-Doctor`로 본다.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "<저장소 경로>\scripts\Start-McpBridge.ps1" -Doctor

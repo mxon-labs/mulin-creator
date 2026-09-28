@@ -57,7 +57,6 @@ What installing gives you:
 
 - **Tools** — project, POU, ladder, variables, tasks, build, download. Their names read
   as `mcp__plugin_mulin-creator_mulin-creator__*`.
-- **`/mulin-creator:check-mcp`** — pinpoints why a connection isn't working.
 - **`/mulin-creator:engineering`** — the operating sequence. The AI automatically consults
   it for things like the fact that a ladder is a graph, or what to do when a dialog pops up.
 
@@ -105,24 +104,6 @@ to be targeted explicitly.
 claude plugin update mulin-creator@mxon --scope project
 ```
 
-### Order matters — start Creator first
-
-Claude Code starts the bridge **when the session starts.** If Creator isn't up at that
-moment, the server is left in a failed state, and the session remembers that failure —
-starting Creator afterward doesn't make the next tool call reconnect on its own. How you
-reconnect depends on the client.
-
-- **`claude` in a terminal** — pick `mulin-creator` in `/mcp` and Reconnect.
-- **A client without an `/mcp` panel** (the Code tab in the desktop app, for instance) —
-  start Creator, then **start a new session.** There's no reconnect handle on that side.
-
-So the safest order is **to start Creator first, then launch Claude Code.**
-
-**Restarting Creator mid-session is a different story — you don't have to do anything.**
-The bridge stays alive, and on the next tool call it re-reads the lock file and connects
-to the newly opened window by itself. This holds even if the port changed. Even if the
-display still shows "disconnected," a single tool call is enough.
-
 ## Codex
 
 Codex installs from this same repository. Two lines, as on Claude Code.
@@ -132,10 +113,7 @@ codex plugin marketplace add mxon-labs/mulin-creator
 codex plugin add mulin-creator@mxon
 ```
 
-You get the tools and both skills. `codex mcp list` should show `mulin-creator` as enabled.
-
-**Start Creator first, then the session** — the bridge is launched when the session starts,
-the same as on Claude Code.
+You get the tools and the skill. `codex mcp list` should show `mulin-creator` as enabled.
 
 ### When a new version comes out
 
@@ -170,40 +148,30 @@ Pick up new versions with `git pull`.
 
 ## When more than one Creator window is running
 
-The bridge **never guesses which window you mean.** If the open project doesn't
-disambiguate either, it refuses to connect and lists the candidates instead — because
-having the ladder change in a window you're not even looking at is the most expensive
-kind of accident in this family of tools.
+Every tool call finds its Creator window at call time. With several windows open, the AI
+works in the one with your project — a restart that reopens the same project is followed
+silently. If it can't tell which window you mean, it asks you and pins the session to your
+answer.
 
-To pin down exactly which window to operate on, put that window's port into an
-environment variable.
+To pin down exactly which window to operate on yourself, put that window's port into an
+environment variable before the session starts.
 
 ```powershell
 $env:MULIN_MCP_PORT = 29501
 ```
 
-You can find the port from the `mulin-creator:check-mcp` skill or from the lock file's name.
-
-**On Codex the open project never disambiguates** — the bridge runs from the plugin folder
-there, so it has no project folder to compare against. Pick the port whenever more than one
-window is up.
+You can find the port from `list_creator_instances` (ask the AI) or from the lock file's name.
 
 ## If the attached window disappears mid-session
 
-The bridge pins itself to the first Creator window it connects to, and keeps talking to
-that exact process for the rest of the session — it does **not** silently switch to a
-different window if that one closes. If a different Creator answers when it reconnects,
-the tool call fails with `creator.instance_changed` instead of being applied somewhere you
-didn't choose.
-
-The fix doesn't need a restart: the AI calls `use_creator_instance` with the port of the
-window it should be talking to (listed in the error, or from `list_creator_instances`),
-then retries. This is also how a window stuck behind a dialog — for example after a
-crash-recovery prompt, which shows up with no project open — gets found and unstuck.
+Reopening the same project picks the session right back up — no action needed. If only
+windows with a different project are left, the AI asks you which one to use instead of
+guessing.
 
 ## When it doesn't work
 
-In Claude Code, `/mulin-creator:check-mcp` diagnoses this for you. To check directly:
+If no tools show up at all, the bridge process itself failed to start — check your
+execution policy and security software, then look with `-Doctor`.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "<repo path>\scripts\Start-McpBridge.ps1" -Doctor

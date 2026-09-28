@@ -116,32 +116,23 @@ crash-recovery prompt, for instance — while a person works the window you're a
 `list_creator_instances` lists every detected window including that one (it has no project
 open yet, so its `projectPath` comes back empty). Pin to it with `use_creator_instance`,
 close the dialog, and the session is no longer stuck between two windows with no way to
-choose.
+choose. **Pinning moves the session's target** — once the dialog is closed, `use_creator_instance`
+back to the window you were actually working in before you continue, or the next call lands
+in the wrong window.
 
-## When the attached window changes
+## Connection
 
-This bridge pins itself to one Creator window the first time it connects, and keeps
-talking to that exact process (matched by port and pid) for the rest of the session. If
-that window closes and a *different* Creator answers on retry, the bridge does not
-silently start talking to it — the call fails with `creator.instance_changed` instead of
-being applied to a window you didn't choose.
+The connection sorts itself out; you never need to diagnose it. Every call finds its Creator
+window at call time — start order, restarts and several open windows are all handled.
+When a call comes back with one of these, do exactly what it says:
 
-1. Read `error.detail.candidates` in that response — every Creator this bridge can
-   currently see, with `port`, `pid`, `projectPath`, and whether it answers a ping.
-2. Call `use_creator_instance` with the `port` of the one you want. This re-pins the
-   session in place — no new session, no `/mcp` reconnect.
-3. Retry the call that failed.
+- `creator.not_running` — ask the user to start MuLiN Creator and stop. Do not work around it.
+- `creator.target_ambiguous` / `creator.project_mismatch` — show the candidates in the error,
+  ask the user which window or project, then `use_creator_instance` with that port. Never pick.
+- `creator.connection_lost` — the result is unknown. Read the state before sending again.
+- `creator.tool_unsupported` — that Creator is older than this plugin's tool list. Tell the user.
 
-This is a different situation from the "multiple candidates" rejection
-`/mulin-creator:check-mcp` describes below — that one happens *before* this bridge has ever
-attached to anything, and its fix is still `MULIN_MCP_PORT` plus a fresh session.
-`creator.instance_changed` only happens *after* a successful attach, mid-session, and its
-fix (`use_creator_instance`) needs no restart at all.
-
-## When you can't connect
-
-Run `/mulin-creator:check-mcp`. It pinpoints whether Creator is closed, whether there are two
-windows and it couldn't tell which one, or whether a stale lock file was left behind.
+`list_creator_instances` shows the current target and every window, with versions.
 
 ## Where the rest of this lives
 

@@ -6,10 +6,31 @@ The plugin and MuLiN Creator ship on separate channels — Creator arrives as a 
 release, this plugin is pulled from this repository — so upgrading one leaves the other
 where it was. Every entry below names the Creator it needs.
 
-To see the pair you are actually running, run the `mulin-creator:check-mcp` skill. Its first line
-is this plugin's version; section 2 lists the version of every Creator window it can reach.
-If your Creator is older than an entry requires, you have two moves: upgrade Creator, or
-check out the plugin version that matches it (`git checkout v0.1.0`).
+To see the pair you are actually running, call the `list_creator_instances` tool (or ask
+the AI which Creator it is connected to): it shows this plugin's version, the Creator
+version its tool list came from, and the version of every Creator window. If your Creator
+is older than an entry requires, you have two moves: upgrade Creator, or check out the
+plugin version that matches it (`git checkout v0.1.0`).
+
+## 0.1.3 — 2026-09-28
+
+**Requires a Creator 1.0.2 build from 2026-09-18 or later** — if your Creator is older than
+this plugin's tool list, the AI tells you which tool it lacks.
+
+### Changed
+
+- You can start Claude before Creator. The tools are there from the start; if Creator isn't
+  running yet the AI asks you to start it, and the next call just works — no reconnecting.
+- Closing and reopening Creator no longer breaks the session. Reopen the same project and the
+  AI carries on where it was.
+- With several Creator windows open, the AI works in the one with your project. If it can't
+  tell which, it asks you instead of guessing.
+- If a Creator window is older than this plugin and lacks a tool, you are told so plainly.
+
+### Removed
+
+- The `check-mcp` skill. The connection no longer needs diagnosing; to see what the AI is
+  connected to, ask it (it uses `list_creator_instances`).
 
 ## 0.1.2 — 2026-09-28
 

@@ -1,8 +1,8 @@
 {
   "name": "mulin-creator",
   "displayName": "MuLiN Creator",
-  "version": "0.1.2",
-  "description": "Operates a running MuLiN Creator — opens projects, reads and edits POUs and ladder, manages variables and tasks, builds, and downloads to the device. Creator must already be running; the bridge finds the window to attach to via its lock file.",
+  "version": "0.1.3",
+  "description": "Operates MuLiN Creator — opens projects, reads and edits POUs and ladder, manages variables and tasks, builds, and downloads to the device. Tools are available immediately; the Creator window is found each time a tool is called, and several open windows are told apart by project.",
   "author": {
     "name": "MXOn Corporation"
   },
