@@ -11,6 +11,23 @@ is this plugin's version; section 2 lists the version of every Creator window it
 If your Creator is older than an entry requires, you have two moves: upgrade Creator, or
 check out the plugin version that matches it (`git checkout v0.1.0`).
 
+## 0.1.2 — 2026-09-28
+
+**Requires a Creator 1.0.2 build from 2026-09-18 or later** — earlier 1.0.2 builds have no
+`inv`, `end` or `jumpn` ladder elements and reject them.
+
+### Added
+
+- Ladder has three more elements, and the guide now covers them. `inv` inverts the power flow
+  at that point (Siemens `NOT`). `jumpn` is `jump` with the condition reversed — it jumps when
+  the rung is FALSE (Siemens `JMPN`). `end` ends the current task cycle, so the programs after
+  it in the same task do not run this cycle (Omron NJ/NX `End`). `inv` and `end` have no fields
+  to set.
+- The guide now says where each exit element belongs: `end` only in a program, `return` only in
+  a function or function block. Placing either in the wrong kind of POU is accepted when you
+  write it and reported by the build. `end` is not a way to leave one program early — it stops
+  the rest of the task cycle as well.
+
 ## 0.1.1 — 2026-09-12
 
 **Requires a Creator 1.0.2 build from 2026-09-12 or later** — earlier 1.0.2 builds have no

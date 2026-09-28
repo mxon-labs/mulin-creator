@@ -64,7 +64,7 @@ fields at the end of this file are the one exception). **Ladder responses carry 
 `before`**; looking for one here wastes the recovery you already have. (The `before` inside
 `anchor: {before: …}` is a placement argument, not a prior value.)
 
-**There are five element kinds** — contact · coil · box · jump · return. Fields differ per
+**There are eight element kinds** — contact · coil · box · jump · jumpn · return · end · inv. Fields differ per
 kind, and the tool's `inputSchema` expresses this as a split on `element.type`: a `oneOf`
 for insert and set, but an **`anyOf` for update** — update omits `type` from the schema's
 `required` array, which would make an exclusive `oneOf` unmatchable. **Send `type` anyway:
@@ -80,6 +80,17 @@ the server still demands it**, as a check that the element is the kind you think
   **`update_ld_element` merges** (only the names you give change);
   **`insert_ld_element`·`set_ld_networks` replace the whole thing**.
 - **Boxes have no modifiers** (even the GUI can't toggle invert/edge-detect on them).
+- **`inv` and `end` have no fields** — `inv` inverts the power rail at that point (Siemens
+  `NOT`); `end` stops the whole task period, so the programs that follow it in the same task
+  do not run this cycle (Omron NJ/NX `End`). Insert and delete them like any other element;
+  `update_ld_element` has nothing to change on either, so it answers `params.invalid` (the
+  same as for `return`).
+- **`end` belongs in a program and `return` in a function or function block** — each POU kind
+  has exactly one exit element, so there is never a choice to make. Putting one in the wrong
+  kind of POU is a build error, not a write rejection: the write succeeds and `build_project`
+  reports it.
+- **`jumpn` is `jump` with the condition inverted** — it jumps when the rung is FALSE
+  (Siemens `JMPN`). Same `label` field and same rules.
 - **`sourcecode` (a C++ fragment embedded in ladder) can only be read and deleted** —
   writing to it is not open in this contract (`ld.element_not_supported`). A network that
   contains one doesn't round-trip.
@@ -99,8 +110,10 @@ to box, box to loop, loop to box, loop to loop). Since the whole pin set changes
 **Placement is constrained, and only `build_project` enforces it** — a bad layout is
 accepted here and fails at build time. `FOR`/`NEXT` must each be the *only* element in their
 network (`EMD02090`/`EMD02091`); `BREAK` must be *last* in its network (`EMD02129`);
-`RETURN` is rejected inside a PRG — FC/FB only (`EMD02130`). **A PRG's early-exit substitute
-is `jump` to a network `label`**, placed where `RETURN` would have gone.
+`RETURN` is rejected inside a PRG — FC/FB only (`EMD02130`) — and `END` is rejected outside
+one — program only (`EMD02136`). **A PRG's early-exit substitute is `jump` to a network
+`label`**, placed where `RETURN` would have gone; `END` is not that substitute, because it
+stops the rest of the task period as well, not just this program.
 
 A `jump` checks its `label` against labels **written earlier in the same call**, not just
 the live model — writing a label and jumping to it in one `set_ld_networks` call works. A

@@ -9,7 +9,7 @@
       "name": "mulin-creator",
       "source": "./",
       "description": "Operates a running MuLiN Creator — projects, POUs, ladder, variables, tasks, build, download.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "keywords": ["plc", "ladder", "iec-61131", "mulin", "creator"]
     }
   ]
